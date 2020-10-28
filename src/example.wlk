@@ -1,5 +1,5 @@
 class Mafioso {
-	var nivelLealtead
+	var property nivelLealtad
 	var rango
 	const armas = []
 	const subordinados = #{}
@@ -42,7 +42,7 @@ class Mafioso {
 	}
 	
 	method mandarUnSubordinadoATrabajar(unaVictima){
-		subordinados.any().hacerSuTrabajo(unaVictima)
+		subordinados.anyOne().hacerSuTrabajo(unaVictima)
 	}
 	
 	method atacarConArmasDistintas(unaVictima){
@@ -57,14 +57,40 @@ class Mafioso {
 	method dejarArmaParaDespues(){
 		const armaUsada = armas.head()
 		armas.remove(armaUsada)
-		armas.add(armaUsada)
+		self.agregarArma(armaUsada)
 	}
 	
+	method dormisConLosPeces(){
+		return morido
+	}
 	
+	method cantArmas(){
+		return armas.size()
+	}
+	
+	method agregarArma(unArma){
+		armas.add(unArma)
+	}
+	
+	method despachaElegantemente(){
+		return rango.elegancia(self)
+	}
+	
+	method algunSubordinadoTieneArmaSutil(){
+		return subordinados.any{ unMafioso => unMafioso.tieneArmaSutil() }
+	}
+	
+	method tieneArmaSutil(){
+		return armas.any{ unArma => unArma.esSutil() }
+	}
+	
+	method multiplicarLealtad(unNumero){
+		nivelLealtad *= unNumero
+	}
 }
 
-object revolver{
-	var tambor = 6
+class Revolver{
+	var tambor
 	
 	method dispararA(unMafioso){
 		if(tambor > 0){
@@ -76,6 +102,14 @@ object revolver{
 	method recargar(){
 		tambor = 6
 	}
+	
+	method esSutil(){
+		return self.tieneUnaBala()
+	}
+	
+	method tieneUnaBala(){
+		return tambor == 1
+	}
 }
 
 object escopeta{
@@ -86,6 +120,10 @@ object escopeta{
 			unMafioso.sufrirDanio()
 		}
 	}
+	
+	method esSutil(){
+		return false
+	}
 }
 
 class CuerdaDePiano{
@@ -95,6 +133,10 @@ class CuerdaDePiano{
 		if(buenaCalidad){
 			unMafioso.morir()
 		}
+	}
+	
+	method esStuil() {
+		return true
 	}
 }
 
@@ -110,6 +152,10 @@ object don {
 	method comoTrabaja(unDon, unaVictima){
 		unDon.mandarAUnSubordinadoATrabajar(unaVictima)
 	}
+	
+	method elegancia(unDon){
+		return true
+	}
 }
 
 object subjefe {
@@ -124,6 +170,10 @@ object subjefe {
 	method comoTrabaja(unSubjefe, unaVictima){
 		unSubjefe.atacarConArmasDistintas(unaVictima)
 	}
+	
+	method elegancia(unSubjefe){
+		return unSubjefe.algunSubordinadoTieneArmaSutil()
+	}
 }
 
 object soldado {
@@ -133,5 +183,105 @@ object soldado {
 	
 	method comoTrabaja(unSoldado, unaVictima){
 		unSoldado.usarArmaMasAMano(unaVictima)
+	}
+	
+	method elegancia(unSoldado){
+		unSoldado.tieneArmaSutil()
+	}
+}
+
+class Familia{
+	const integrantes = #{}
+	const traiciones = #{}
+	
+	method peligroso(){
+		return integrantes.max{ unMafioso => unMafioso.cantArmas() }
+	}
+	
+	method elQueQuieraEstarArmadoQueAndeArmado(){
+		integrantes.forEach{ unMafioso => unMafioso.agregarArma(new Revolver(tambor = 6)) }
+	}
+	
+	method ataqueSorpresa(unaFamilia){
+		integrantes.removeAllSuchThat{ unMafioso => unMafioso.duermeConLosPeces() }
+		integrantes.forEach{ unMafioso => unMafioso.hacerSuTrabajo(unaFamilia.peligroso()) }
+	}
+	
+	method luto(){
+		self.ascenderASoldados()
+		self.designarNuevoDon()
+		self.multiplicarLealtad(1.1)
+	}
+	
+	method ascenderASoldados(){
+		self.soldadosConMasDeNArmas(5).forEach{ unSoldado => unSoldado.asignarRango(subjefe) }
+	}
+	
+	method soldadosConMasDeNArmas(unNumero){
+		return self.soldados().filter{ unSoldado => unSoldado.cantArmas() > unNumero }
+	}
+	
+	method soldados(){
+		return integrantes.filter{ unMafioso => !unMafioso.noEsSoldado() }
+	}
+	
+	method designarNuevoDon(){
+		self.integranteConMayorLealtad().asignarRango(don)
+	}
+	
+	method integranteConMayorLealtad(){
+		return integrantes.max{ unMafioso => unMafioso.nivelLealtad() }
+	}
+	
+	method multiplicarLealtad(unNumero){
+		integrantes.forEach{ unMafioso => unMafioso.multiplicarLealtad(unNumero) }
+	}
+	
+	method recordarTraicion(unaTraicion){
+		traiciones.add(unaTraicion)
+	}
+	
+	method confiarEn(unIntegrante){
+		return self.lealtadPromedio() < 2 * unIntegrante.nivelLealtad()
+	}
+	
+	method lealtadPromedio(){
+		return integrantes.sum{ unMafioso => unMafioso.nivelLealtad() } / integrantes.size()
+	}
+	
+	method agregarIntegrante(unIntegrante){
+		integrantes.add(unIntegrante)
+	}
+	
+	method ajusticiar(unMafioso){
+		unMafioso.morir()
+	}
+}
+
+class Traicion{
+	const familiaTraicionada
+	const familiaDeseada
+	const victimas = #{}
+	var fecha
+	const traidor
+	
+	method planearTraicion(unaVictima, unaFecha){
+		victimas.add(unaVictima)
+		fecha = unaFecha
+	}
+	
+	method seComplica(unaVictima, cantDias){
+		victimas.add(unaVictima)
+		fecha.minusDays(cantDias)
+	}
+	
+	method ejecutarTraicion(){
+		if(familiaTraicionada.confiaEn(traidor)){
+			traidor.atacarVictimas(victimas)
+			familiaDeseada.agregarIntegrante(traidor)
+		} else {
+			familiaTraicionada.ajusticiar(traidor)
+		}
+		familiaTraicionada.recordarTraicion()
 	}
 }
