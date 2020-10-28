@@ -89,7 +89,7 @@ object escopeta{
 }
 
 class CuerdaDePiano{
-	var buenaCalidad = false
+	var buenaCalidad
 	
 	method dispararA(unMafioso){
 		if(buenaCalidad){
