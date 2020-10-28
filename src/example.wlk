@@ -87,6 +87,10 @@ class Mafioso {
 	method multiplicarLealtad(unNumero){
 		nivelLealtad *= unNumero
 	}
+	
+	method atacarVictimas(unasVictimas){
+		unasVictimas.forEach{ unaVictima => self.hacerSuTrabajo(unaVictima) }
+	}
 }
 
 class Revolver{
@@ -241,7 +245,7 @@ class Familia{
 		traiciones.add(unaTraicion)
 	}
 	
-	method confiarEn(unIntegrante){
+	method confiaEn(unIntegrante){
 		return self.lealtadPromedio() < 2 * unIntegrante.nivelLealtad()
 	}
 	
