@@ -34,7 +34,7 @@ class Mafioso {
 	
 	method asignarRango(unRango){
 		rango = unRango
-		unRango.obtenerBeneficios()
+		unRango.obtenerBeneficios(self)
 	}
 	
 	method hacerSuTrabajo(unaVictima){
@@ -207,7 +207,7 @@ class Familia{
 	}
 	
 	method ataqueSorpresa(unaFamilia){
-		integrantes.removeAllSuchThat{ unMafioso => unMafioso.duermeConLosPeces() }
+		integrantes.removeAllSuchThat{ unMafioso => unMafioso.dormisConLosPeces() }
 		integrantes.forEach{ unMafioso => unMafioso.hacerSuTrabajo(unaFamilia.peligroso()) }
 	}
 	
@@ -286,6 +286,6 @@ class Traicion{
 		} else {
 			familiaTraicionada.ajusticiar(traidor)
 		}
-		familiaTraicionada.recordarTraicion()
+		familiaTraicionada.recordarTraicion(self)
 	}
 }
